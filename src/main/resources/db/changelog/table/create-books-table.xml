@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="create-books-table.1" author="Tamerlan Ishmaev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="books"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="books">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="title" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="publication_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="author_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="books" baseColumnNames="author_id"
+                                 constraintName="FK_BOOKS_AUTHOR_ID"
+                                 referencedTableName="authors" referencedColumnNames="id"/>
+
+    </changeSet>
+
+</databaseChangeLog>
