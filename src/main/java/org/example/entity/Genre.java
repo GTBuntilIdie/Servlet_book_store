@@ -8,6 +8,11 @@ public class Genre {
     public Genre() {
     }
 
+    public Genre(Long id, String title) {
+        this.id = id;
+        this.title = title;
+    }
+
     public Long getId() {
         return id;
     }

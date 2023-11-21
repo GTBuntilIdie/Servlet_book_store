@@ -1,6 +1,7 @@
 package org.example.entity;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 
 public class Book {
@@ -12,6 +13,14 @@ public class Book {
     private Set<Genre> genres; // ManyToMany
 
     public Book() {
+    }
+
+    public Book(Long id, String title, LocalDate publicationDate, Author author, Set<Genre> genres) {
+        this.id = id;
+        this.title = title;
+        this.publicationDate = publicationDate;
+        this.author = author;
+        this.genres = genres;
     }
 
     public Long getId() {

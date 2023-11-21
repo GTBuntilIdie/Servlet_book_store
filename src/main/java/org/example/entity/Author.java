@@ -15,6 +15,15 @@ public class Author {
         this.surname = surname;
     }
 
+    @Override
+    public String toString() {
+        return "Author{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                '}';
+    }
+
     public Long getId() {
         return id;
     }
