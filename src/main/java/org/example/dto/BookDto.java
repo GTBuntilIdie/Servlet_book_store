@@ -1,8 +1,6 @@
 package org.example.dto;
 
 import jakarta.validation.constraints.*;
-import org.example.entity.Author;
-import org.example.entity.Genre;
 
 import java.time.LocalDate;
 import java.util.Set;
