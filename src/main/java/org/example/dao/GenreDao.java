@@ -36,6 +36,12 @@ public class GenreDao implements DaoInterface<Genre, Long> {
             INSERT INTO genres (title)
             VALUES (?)
             """;
+    private static final String UPDATE_SQL = """
+            UPDATE genres
+            SET title = ?         
+            WHERE id = ?
+            """;
+
 
     private GenreDao() {
     }
@@ -126,6 +132,18 @@ public class GenreDao implements DaoInterface<Genre, Long> {
             return genre;
         } catch (SQLException e) {
             throw new DaoException(e);
+        }
+    }
+
+    public void update(Genre genre) {
+        try (var connection = ConnectionManager.get();
+             var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
+            preparedStatement.setString(1, genre.getTitle());
+            preparedStatement.setLong(2, genre.getId());
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException throwables) {
+            throw new DaoException(throwables);
         }
     }
 }

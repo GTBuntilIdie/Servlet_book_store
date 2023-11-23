@@ -28,11 +28,17 @@ public class AuthorDao implements DaoInterface<Author, Long> {
             DELETE FROM authors
             WHERE id = ?
             """;
-
     private static final String SAVE_SQL = """
             INSERT INTO authors (name, surname)
             VALUES (?, ?)
             """;
+    private static final String UPDATE_SQL = """
+            UPDATE authors
+            SET name = ?,
+                surname = ?         
+            WHERE id = ?
+            """;
+
     @Override
     public Optional<Author> findById(Long id) {
         try (var connection = ConnectionManager.get();
@@ -99,6 +105,19 @@ public class AuthorDao implements DaoInterface<Author, Long> {
             return author;
         } catch (SQLException e) {
             throw new DaoException(e);
+        }
+    }
+
+    public void update(Author author) {
+        try (var connection = ConnectionManager.get();
+             var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
+            preparedStatement.setString(1, author.getName());
+            preparedStatement.setString(2, author.getSurname());
+            preparedStatement.setLong(3, author.getId());
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException throwables) {
+            throw new DaoException(throwables);
         }
     }
 }

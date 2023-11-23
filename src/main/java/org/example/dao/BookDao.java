@@ -1,13 +1,12 @@
 package org.example.dao;
 
 import org.example.connection.ConnectionManager;
+import org.example.dto.BookDto;
+import org.example.entity.Author;
 import org.example.entity.Book;
 import org.example.exception.DaoException;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -38,6 +37,22 @@ public class BookDao implements DaoInterface<Book, Long>{
             INSERT INTO books (title, publication_date, author_id)
             VALUES (?, ?, ?)
             """;
+    private static final String UPDATE_SQL = """
+            UPDATE books
+            SET title = ?,
+                publication_date = ?,
+                author_id = ?
+            WHERE id = ?
+            """;
+    private static final String ADD_GENRE = """
+            INSERT INTO books_to_genres (book_id, genre_id)
+            VALUES (?, ?)
+            """;
+    private static final String DELETE_EXISTING_GENRES = """
+            DELETE FROM books_to_genres
+            WHERE book_id = ?
+            """;
+
 
     private final AuthorDao authorDao = AuthorDao.getInstance();
     private final GenreDao genreDao = GenreDao.getInstance();
@@ -114,6 +129,42 @@ public class BookDao implements DaoInterface<Book, Long>{
             throw new DaoException(e);
         }
     }
+
+    public void update(Book book) {
+        try (var connection = ConnectionManager.get();
+             var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
+            preparedStatement.setString(1, book.getTitle());
+            preparedStatement.setTimestamp(2, convertTime(book.getPublicationDate()));
+            preparedStatement.setLong(3, book.getAuthor().getId());
+            preparedStatement.setLong(4, book.getId());
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException throwables) {
+            throw new DaoException(throwables);
+        }
+    }
+    public boolean deleteBookGenres(Long bookId) {
+        try (var connection = ConnectionManager.get();
+             var preparedStatement = connection.prepareStatement(DELETE_EXISTING_GENRES)) {
+            preparedStatement.setLong(1, bookId);
+            return preparedStatement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void addGenre(BookDto bookDto) {
+        try (var connection = ConnectionManager.get();
+             var preparedStatement = connection.prepareStatement(ADD_GENRE)) {
+            preparedStatement.setLong(1, bookDto.getId());
+            preparedStatement.setObject(2, bookDto.getGenreIds());
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+
 
     private Timestamp convertTime(LocalDate date) {
         return Timestamp.valueOf(date.atStartOfDay());

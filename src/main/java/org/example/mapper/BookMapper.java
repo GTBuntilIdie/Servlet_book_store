@@ -1,6 +1,5 @@
 package org.example.mapper;
 
-
 import org.example.dao.AuthorDao;
 import org.example.dao.GenreDao;
 import org.example.dto.BookDto;
@@ -12,6 +11,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class BookMapper {
+
+    private static final BookMapper INSTANCE = new BookMapper();
+    public static BookMapper getInstance() {
+        return INSTANCE;
+    }
 
     private final AuthorDao authorDao = AuthorDao.getInstance();
     private final GenreDao genreDao = GenreDao.getInstance();

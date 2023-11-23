@@ -5,6 +5,11 @@ import org.example.entity.Author;
 
 public class AuthorMapper {
 
+    private static final AuthorMapper INSTANCE = new AuthorMapper();
+    public static AuthorMapper getInstance() {
+        return INSTANCE;
+    }
+
     public AuthorDto mapToAuthorDto(Author author) {
         AuthorDto dto = new AuthorDto();
         dto.setId(author.getId());
