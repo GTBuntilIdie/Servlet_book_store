@@ -1,18 +1,14 @@
 package org.example.dao;
 
 import org.example.connection.ConnectionManager;
-import org.example.dto.BookDto;
-import org.example.entity.Author;
 import org.example.entity.Book;
+import org.example.entity.Genre;
 import org.example.exception.DaoException;
 
 import java.sql.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.sql.Date;
+import java.time.ZoneId;
+import java.util.*;
 
 public class BookDao implements DaoInterface<Book, Long>{
 
@@ -75,17 +71,19 @@ public class BookDao implements DaoInterface<Book, Long>{
     }
 
     private Book getBook(ResultSet resultSet) throws SQLException {
+        var set = new HashSet<Genre>();
         return new Book(
                 resultSet.getLong("id"),
                 resultSet.getString("title"),
-                resultSet.getTimestamp("publicationDate").toLocalDateTime().toLocalDate(),
+                resultSet.getTimestamp("publication_date").toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
                 authorDao.findById(resultSet.getLong("author_id")).orElse(null),
-                genreDao.getBookGenresByBookId(resultSet.getLong("id"))
-                );
+                set
+        );
     }
 
     @Override
     public boolean delete(Long id) {
+        deleteBookGenres(id);
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(DELETE_SQL)) {
             preparedStatement.setLong(1, id);
@@ -116,7 +114,7 @@ public class BookDao implements DaoInterface<Book, Long>{
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, book.getTitle());
-            preparedStatement.setTimestamp(2, convertTime(book.getPublicationDate()));
+            preparedStatement.setDate(2, Date.valueOf(book.getPublicationDate()));
             preparedStatement.setLong(3, book.getAuthor().getId());
 
             preparedStatement.executeUpdate();
@@ -124,50 +122,49 @@ public class BookDao implements DaoInterface<Book, Long>{
             if (generatedKeys.next()) {
                 book.setId(generatedKeys.getLong("id"));
             }
+            addGenre(book);
             return book;
         } catch (SQLException e) {
             throw new DaoException(e);
         }
+
     }
 
     public void update(Book book) {
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
             preparedStatement.setString(1, book.getTitle());
-            preparedStatement.setTimestamp(2, convertTime(book.getPublicationDate()));
+            preparedStatement.setDate(2, Date.valueOf(book.getPublicationDate()));
             preparedStatement.setLong(3, book.getAuthor().getId());
             preparedStatement.setLong(4, book.getId());
 
             preparedStatement.executeUpdate();
+
         } catch (SQLException throwables) {
             throw new DaoException(throwables);
         }
     }
-    public boolean deleteBookGenres(Long bookId) {
+    public void deleteBookGenres(Long bookId) {
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(DELETE_EXISTING_GENRES)) {
             preparedStatement.setLong(1, bookId);
-            return preparedStatement.executeUpdate() > 0;
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void addGenre(BookDto bookDto) {
+    public void addGenre(Book book) {
+        Set<Genre> genres = book.getGenres();
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(ADD_GENRE)) {
-            preparedStatement.setLong(1, bookDto.getId());
-            preparedStatement.setObject(2, bookDto.getGenreIds());
-
-            preparedStatement.executeUpdate();
+            for (Genre element : genres) {
+                preparedStatement.setLong(1, book.getId());
+                preparedStatement.setLong(2, element.getId());
+                preparedStatement.executeUpdate();
+            }
         } catch (SQLException e) {
-            throw new DaoException(e);
+            throw new RuntimeException(e);
         }
     }
-
-
-    private Timestamp convertTime(LocalDate date) {
-        return Timestamp.valueOf(date.atStartOfDay());
-    }
-
 }

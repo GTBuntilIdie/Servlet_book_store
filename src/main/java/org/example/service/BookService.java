@@ -5,6 +5,8 @@ import org.example.dto.BookDto;
 import org.example.entity.Book;
 import org.example.mapper.BookMapper;
 
+import java.util.Optional;
+
 public class BookService {
 
     private static final BookService INSTANCE = new BookService();
@@ -18,22 +20,22 @@ public class BookService {
 
 
     public BookDto create(BookDto bookDto) {
-        Book book = mapper.mapToBookEntity(bookDto);
-        dao.addGenre(bookDto);
-        Book saved = dao.save(book);
-        return mapper.mapToBookDto(saved);
+        return mapper.mapToBookDto(dao.save(mapper.mapToBookEntity(bookDto)));
+
     }
 
     public BookDto read(long id) {
         return dao.findById(id).map(mapper::mapToBookDto).orElse(null);
     }
 
-    public BookDto update(long id, BookDto bookDtoIn) {
+    public BookDto update(long id, BookDto newDto) {
         return dao.findById(id)
                 .map(entity -> {
-                    var updated = mapper.mapToBookEntity(bookDtoIn);
-                    updated.setId(entity.getId());
-                    return dao.save(updated);
+                    entity.setTitle(newDto.getTitle());
+                    entity.setPublicationDate(newDto.getPublicationDate());
+                    entity.setAuthor(mapper.mapToBookEntity(newDto).getAuthor());
+                    dao.update(entity);
+                    return entity;
                 })
                 .map(mapper::mapToBookDto)
                 .orElse(null);

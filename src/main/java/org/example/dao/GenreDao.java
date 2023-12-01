@@ -67,18 +67,18 @@ public class GenreDao implements DaoInterface<Genre, Long> {
 
     }
 
-    public Set<Genre> getBookGenresByBookId(Long bookID) {
-
+    public Set<Long> getBookGenresByBookId(Long id) {
+        Set<Long> genreSet = new HashSet<>();
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(GET_BOOK_GENRES_SQL)) {
-            preparedStatement.setLong(1, bookID);
-            Set<Genre> genresSet = new HashSet<>();
+            preparedStatement.setLong(1, id);
 
             var resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                genresSet.add(getGenre(resultSet));
+            Genre genre = null;
+            if (resultSet.next()) {
+                genreSet.add(resultSet.getLong("genre_id"));
             }
-            return genresSet;
+            return genreSet;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

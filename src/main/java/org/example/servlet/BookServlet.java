@@ -1,6 +1,7 @@
 package org.example.servlet;
 
 
+import org.example.dto.AuthorDto;
 import org.example.dto.BookDto;
 import org.example.service.BookService;
 
@@ -79,4 +80,40 @@ public class BookServlet extends HttpServlet {
         out.println(title);
         out.println("</body></html>");
     }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        long id = Long.parseLong(req.getParameter("id"));
+
+        String title = req.getParameter("new_title");
+        LocalDate publicationDate = LocalDate.parse(req.getParameter("new_publicationDate"));
+        Long authorId = Long.valueOf(req.getParameter("new_authorId"));
+
+        BookDto bookDto = new BookDto();
+        bookDto.setTitle(title);
+        bookDto.setPublicationDate(publicationDate);
+        bookDto.setAuthorId(authorId);
+
+        bookService.update(id, bookDto);
+
+        resp.setContentType("text/html");
+        PrintWriter out = resp.getWriter();
+        out.println("<html><body>");
+        out.println("book updated");
+        out.println("</body></html>");
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        long id = Long.parseLong(req.getParameter("id"));
+
+        bookService.delete(id);
+
+        resp.setContentType("text/html");
+        PrintWriter out = resp.getWriter();
+        out.println("<html><body>");
+        out.println("book deleted");
+        out.println("</body></html>");
+    }
+
 }
