@@ -84,15 +84,16 @@ public class BookServlet extends HttpServlet {
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         long id = Long.parseLong(req.getParameter("id"));
-
         String title = req.getParameter("new_title");
         LocalDate publicationDate = LocalDate.parse(req.getParameter("new_publicationDate"));
         Long authorId = Long.valueOf(req.getParameter("new_authorId"));
+        String genresIds = req.getParameter("new_genres");
 
         BookDto bookDto = new BookDto();
         bookDto.setTitle(title);
         bookDto.setPublicationDate(publicationDate);
         bookDto.setAuthorId(authorId);
+        bookDto.setGenreIds(getLongs(genresIds));
 
         bookService.update(id, bookDto);
 

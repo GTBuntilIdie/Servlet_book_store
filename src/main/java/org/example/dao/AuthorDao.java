@@ -4,6 +4,7 @@ import org.example.connection.ConnectionManager;
 import org.example.entity.Author;
 import org.example.exception.DaoException;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class AuthorDao implements DaoInterface<Author, Long> {
+
 
     private static final AuthorDao INSTANCE = new AuthorDao();
     public static AuthorDao getInstance() {
@@ -40,9 +42,8 @@ public class AuthorDao implements DaoInterface<Author, Long> {
             """;
 
     @Override
-    public Optional<Author> findById(Long id) {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
+    public Optional<Author> findById(Long id, Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
             preparedStatement.setLong(1, id);
 
             var resultSet = preparedStatement.executeQuery();
@@ -64,9 +65,8 @@ public class AuthorDao implements DaoInterface<Author, Long> {
     }
 
     @Override
-    public boolean delete(Long id) {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(DELETE_SQL)) {
+    public boolean deleteById(Long id, Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(DELETE_SQL)) {
             preparedStatement.setLong(1, id);
             return preparedStatement.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -75,9 +75,8 @@ public class AuthorDao implements DaoInterface<Author, Long> {
     }
 
     @Override
-    public List<Author> findAll() {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
+    public List<Author> findAll(Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
             var resultSet = preparedStatement.executeQuery();
             List<Author> products = new ArrayList<>();
             while (resultSet.next()) {
@@ -91,9 +90,8 @@ public class AuthorDao implements DaoInterface<Author, Long> {
     }
 
     @Override
-    public Author save(Author author) {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
+    public Author save(Author author, Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, author.getName());
             preparedStatement.setString(2, author.getSurname());
 
@@ -108,9 +106,8 @@ public class AuthorDao implements DaoInterface<Author, Long> {
         }
     }
 
-    public void update(Author author) {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
+    public void update(Author author, Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
             preparedStatement.setString(1, author.getName());
             preparedStatement.setString(2, author.getSurname());
             preparedStatement.setLong(3, author.getId());

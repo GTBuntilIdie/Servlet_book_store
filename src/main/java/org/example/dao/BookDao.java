@@ -49,20 +49,17 @@ public class BookDao implements DaoInterface<Book, Long>{
             WHERE book_id = ?
             """;
 
-
     private final AuthorDao authorDao = AuthorDao.getInstance();
-    private final GenreDao genreDao = GenreDao.getInstance();
 
     @Override
-    public Optional<Book> findById(Long id) {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
+    public Optional<Book> findById(Long id, Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
             preparedStatement.setLong(1, id);
 
             var resultSet = preparedStatement.executeQuery();
             Book book = null;
             if (resultSet.next()) {
-                book = getBook(resultSet);
+                book = getBook(resultSet, connection);
             }
             return Optional.ofNullable(book);
         } catch (SQLException e) {
@@ -70,23 +67,22 @@ public class BookDao implements DaoInterface<Book, Long>{
         }
     }
 
-    private Book getBook(ResultSet resultSet) throws SQLException {
+    private Book getBook(ResultSet resultSet, Connection connection) throws SQLException {
         var set = new HashSet<Genre>();
         return new Book(
                 resultSet.getLong("id"),
                 resultSet.getString("title"),
                 resultSet.getTimestamp("publication_date").toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
-                authorDao.findById(resultSet.getLong("author_id")).orElse(null),
+                authorDao.findById(resultSet.getLong("author_id"), connection).orElse(null),
                 set
         );
     }
 
     @Override
-    public boolean delete(Long id) {
-        deleteBookGenres(id);
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(DELETE_SQL)) {
+    public boolean deleteById(Long id, Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(DELETE_SQL)) {
             preparedStatement.setLong(1, id);
+            deleteBookGenres(id, connection);
             return preparedStatement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -94,13 +90,12 @@ public class BookDao implements DaoInterface<Book, Long>{
     }
 
     @Override
-    public List<Book> findAll() {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
+    public List<Book> findAll(Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
             var resultSet = preparedStatement.executeQuery();
             List<Book> books = new ArrayList<>();
             while (resultSet.next()) {
-                books.add(getBook(resultSet));
+                books.add(getBook(resultSet, connection));
             }
             return books;
 
@@ -110,9 +105,8 @@ public class BookDao implements DaoInterface<Book, Long>{
     }
 
     @Override
-    public Book save(Book book) {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
+    public Book save(Book book, Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, book.getTitle());
             preparedStatement.setDate(2, Date.valueOf(book.getPublicationDate()));
             preparedStatement.setLong(3, book.getAuthor().getId());
@@ -130,9 +124,8 @@ public class BookDao implements DaoInterface<Book, Long>{
 
     }
 
-    public void update(Book book) {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
+    public void update(Book book, Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
             preparedStatement.setString(1, book.getTitle());
             preparedStatement.setDate(2, Date.valueOf(book.getPublicationDate()));
             preparedStatement.setLong(3, book.getAuthor().getId());
@@ -144,15 +137,13 @@ public class BookDao implements DaoInterface<Book, Long>{
             throw new DaoException(throwables);
         }
     }
-    public void deleteBookGenres(Long bookId) {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(DELETE_EXISTING_GENRES)) {
+    public void deleteBookGenres(Long bookId, Connection connection) throws SQLException {
+        try (var preparedStatement = connection.prepareStatement(DELETE_EXISTING_GENRES)) {
             preparedStatement.setLong(1, bookId);
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
+
 
     public void addGenre(Book book) {
         Set<Genre> genres = book.getGenres();

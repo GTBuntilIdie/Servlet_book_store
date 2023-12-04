@@ -1,6 +1,6 @@
 package org.example.dao;
 
-import org.example.connection.ConnectionManager;
+import org.example.entity.Book;
 import org.example.entity.Genre;
 import org.example.exception.DaoException;
 
@@ -47,9 +47,8 @@ public class GenreDao implements DaoInterface<Genre, Long> {
     }
 
     @Override
-    public Optional<Genre> findById(Long id) {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
+    public Optional<Genre> findById(Long id, Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
             preparedStatement.setLong(1, id);
 
             var resultSet = preparedStatement.executeQuery();
@@ -64,30 +63,11 @@ public class GenreDao implements DaoInterface<Genre, Long> {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-    }
-
-    public Set<Long> getBookGenresByBookId(Long id) {
-        Set<Long> genreSet = new HashSet<>();
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(GET_BOOK_GENRES_SQL)) {
-            preparedStatement.setLong(1, id);
-
-            var resultSet = preparedStatement.executeQuery();
-            Genre genre = null;
-            if (resultSet.next()) {
-                genreSet.add(resultSet.getLong("genre_id"));
-            }
-            return genreSet;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
-    public boolean delete(Long id) {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(DELETE_SQL)) {
+    public boolean deleteById(Long id, Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(DELETE_SQL)) {
             preparedStatement.setLong(1, id);
             return preparedStatement.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -96,9 +76,8 @@ public class GenreDao implements DaoInterface<Genre, Long> {
     }
 
     @Override
-    public List<Genre> findAll() {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
+    public List<Genre> findAll(Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
             var resultSet = preparedStatement.executeQuery();
             List<Genre> genres = new ArrayList<>();
             while (resultSet.next()) {
@@ -119,9 +98,8 @@ public class GenreDao implements DaoInterface<Genre, Long> {
     }
 
     @Override
-    public Genre save(Genre genre) {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
+    public Genre save(Genre genre, Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, genre.getTitle());
 
             preparedStatement.executeUpdate();
@@ -135,9 +113,8 @@ public class GenreDao implements DaoInterface<Genre, Long> {
         }
     }
 
-    public void update(Genre genre) {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
+    public void update(Genre genre, Connection connection) {
+        try (var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
             preparedStatement.setString(1, genre.getTitle());
             preparedStatement.setLong(2, genre.getId());
 

@@ -7,6 +7,7 @@ import org.example.entity.Author;
 import org.example.entity.Book;
 import org.example.entity.Genre;
 
+import java.sql.Connection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,18 +37,18 @@ public class BookMapper {
         return dto;
     }
 
-    public Book mapToBookEntity(BookDto dto) {
+    public Book mapToBookEntity(BookDto dto, Connection connection) {
         Book book = new Book();
         book.setId(dto.getId());
         book.setTitle(dto.getTitle());
         book.setPublicationDate(dto.getPublicationDate());
 
-        Author author = authorDao.findById(dto.getAuthorId()).orElse(null);
+        Author author = authorDao.findById(dto.getAuthorId(), connection).orElse(null);
         book.setAuthor(author);
 
         Set<Genre> genreSet = new HashSet<>();
         for (Long genreId : dto.getGenreIds()) {
-            var genre = genreDao.findById(genreId).orElse(null);
+            var genre = genreDao.findById(genreId, connection).orElse(null);
             genreSet.add(genre);
         }
 

@@ -17,9 +17,5 @@ public class JDBCRunner {
     static BookDao bookDao = BookDao.getInstance();
 
     public static void main(String[] args) {
-
-
-        bookDao.findById(9L);
-
     }
 }

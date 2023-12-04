@@ -1,9 +1,12 @@
 package org.example.service;
 
+import org.example.connection.ConnectionManager;
 import org.example.dao.AuthorDao;
 import org.example.dto.AuthorDto;
 import org.example.entity.Author;
 import org.example.mapper.AuthorMapper;
+
+import java.sql.SQLException;
 
 public class AuthorService {
 
@@ -18,33 +21,48 @@ public class AuthorService {
 
 
     public AuthorDto create(AuthorDto authorDto) {
-        Author author = mapper.mapToAuthorEntity(authorDto);
-        Author saved = dao.save(author);
-        return mapper.mapToAuthorDto(saved);
+        try (var connection = ConnectionManager.get()) {
+            Author author = mapper.mapToAuthorEntity(authorDto);
+            Author saved = dao.save(author, connection);
+            return mapper.mapToAuthorDto(saved); }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public AuthorDto read(long id) {
-        return dao.findById(id).map(mapper::mapToAuthorDto).orElse(null);
+        try (var connection = ConnectionManager.get()) {
+            return dao.findById(id, connection).map(mapper::mapToAuthorDto).orElse(null);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public AuthorDto update(long id, AuthorDto authorDto) {
-        return dao.findById(id)
+        try (var connection = ConnectionManager.get()) {
+            return dao.findById(id, connection)
                 .map(entity -> {
                     entity.setName(authorDto.getName());
                     entity.setSurname(authorDto.getSurname());
-                    dao.update(entity);
-                    return entity;
-                })
+                    dao.update(entity, connection);
+                    return entity; }
+                )
                 .map(mapper::mapToAuthorDto)
                 .orElse(null);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public AuthorDto delete(long id) {
-        return dao.findById(id)
+    public void delete(long id) {
+        try (var connection = ConnectionManager.get()) {
+            dao.findById(id, connection)
                 .map(entity -> {
-                    dao.delete(id);
+                    dao.deleteById(id, connection);
                     return entity;
-                }).map(mapper::mapToAuthorDto)
-                .orElse(null);
+                }).map(mapper::mapToAuthorDto);
+    } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

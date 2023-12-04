@@ -1,9 +1,12 @@
 package org.example.service;
 
+import org.example.connection.ConnectionManager;
 import org.example.dao.GenreDao;
 import org.example.dto.GenreDto;
 import org.example.mapper.GenreMapper;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Optional;
 
 public class GenreService {
@@ -17,30 +20,47 @@ public class GenreService {
     private final GenreDao dao = GenreDao.getInstance();
 
     public GenreDto create(GenreDto genreDto) {
-        return mapper.mapToGenreDto(dao.save(mapper.mapToGenreEntity(genreDto)));
+        try (Connection connection = ConnectionManager.get()) {
+            return mapper.mapToGenreDto(dao.save(mapper
+                    .mapToGenreEntity(genreDto), connection));}
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public GenreDto read(long id) {
-        return dao.findById(id).map(mapper::mapToGenreDto).orElse(null);
+        try (Connection connection = ConnectionManager.get()) {
+            return dao.findById(id, connection)
+                    .map(mapper::mapToGenreDto).orElse(null); }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public GenreDto update(long id, GenreDto genreDto) {
-        return dao.findById(id)
+        try (Connection connection = ConnectionManager.get()) {
+            return dao.findById(id, connection)
                 .map(entity -> {
                     entity.setTitle(genreDto.getTitle());
-                    dao.update(entity);
+                    dao.update(entity, connection);
                     return entity;
                 })
                 .map(mapper::mapToGenreDto)
-                .orElse(null);
+                .orElse(null); }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void delete(long id) {
-        Optional.ofNullable(read(id))
+        try (Connection connection = ConnectionManager.get()) {
+            Optional.ofNullable(read(id))
                 .map(dto -> {
-                    dao.delete(id);
+                    dao.deleteById(id, connection);
                     return dto;
-                });
-
+                }); }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
