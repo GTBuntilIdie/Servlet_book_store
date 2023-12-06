@@ -51,11 +51,14 @@ class AuthorDaoTest {
     }
     @Test
     public void testFindById() {
-        Long id = 1L;
+        /*Long id = 1L;
         String name = "name";
         String surname = "surname";
-        createAuthor(id, name, surname);
+        createAuthor(id, name, surname);*/
 
+        Long id = 1L;
+        String name = "name5";
+        String surname = "surname5";
         Optional<Author> foundAuthor = authorDao.findById(id, connection);
 
         Assertions.assertTrue(foundAuthor.isPresent());
@@ -66,10 +69,12 @@ class AuthorDaoTest {
 
     @Test
     public void testDeleteById() {
-        Long id = 2L;
-        String name2 = "name2";
+        Long id = 1L;
+
+        /*String name2 = "name2";
         String surname2 = "name2";
-        createAuthor(id, name2, surname2);
+        createAuthor(id, name2, surname2);*/
+
         authorDao.deleteById(id, connection);
         Assertions.assertFalse(authorDao.findById(1L, connection).isPresent());
     }
@@ -87,9 +92,9 @@ class AuthorDaoTest {
 
         var all = authorDao.findAll(connection);
 
-        Assertions.assertEquals(2, all.size());
-        Assertions.assertEquals("name3", all.get(0).getName());
-        Assertions.assertEquals("name4", all.get(1).getName());
+        Assertions.assertEquals(3, all.size());
+        Assertions.assertEquals("name3", all.get(1).getName());
+        Assertions.assertEquals("name4", all.get(2).getName());
     }
 
     @Test

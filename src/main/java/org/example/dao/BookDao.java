@@ -116,7 +116,7 @@ public class BookDao implements DaoInterface<Book, Long>{
             if (generatedKeys.next()) {
                 book.setId(generatedKeys.getLong("id"));
             }
-            addGenre(book);
+            addGenre(book, connection);
             return book;
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -145,10 +145,9 @@ public class BookDao implements DaoInterface<Book, Long>{
     }
 
 
-    public void addGenre(Book book) {
+    public void addGenre(Book book, Connection connection) {
         Set<Genre> genres = book.getGenres();
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(ADD_GENRE)) {
+        try (var preparedStatement = connection.prepareStatement(ADD_GENRE)) {
             for (Genre element : genres) {
                 preparedStatement.setLong(1, book.getId());
                 preparedStatement.setLong(2, element.getId());

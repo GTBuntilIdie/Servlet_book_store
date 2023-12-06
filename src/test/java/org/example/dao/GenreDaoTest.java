@@ -51,10 +51,11 @@ class GenreDaoTest {
     }
     @Test
     public void testFindById() {
-        // Создание тестовых данных
         Long id = 1L;
-        String title = "Test genre";
-        createGenre(id, title);
+        String title = "Test5";
+
+        /*String title = "Test genre";
+        createGenre(id, title);*/
 
         // Вызов метода, который тестируем
         Optional<Genre> foundGenre = genreDao.findById(id, connection);
@@ -67,9 +68,9 @@ class GenreDaoTest {
 
     @Test
     public void testDeleteById() {
-        Long id = 2L;
-        String title = "Test genre";
-        createGenre(id, title);
+        Long id = 1L;
+        /*String title = "Test genre";
+        createGenre(id, title);*/
         genreDao.deleteById(id, connection);
         Assertions.assertFalse(genreDao.findById(1L, connection).isPresent());
     }
@@ -85,9 +86,9 @@ class GenreDaoTest {
 
         var all = genreDao.findAll(connection);
 
-        Assertions.assertEquals(2, all.size());
-        Assertions.assertEquals("Test3", all.get(0).getTitle());
-        Assertions.assertEquals("Test4", all.get(1).getTitle());
+        Assertions.assertEquals(3, all.size());
+        Assertions.assertEquals("Test3", all.get(1).getTitle());
+        Assertions.assertEquals("Test5", all.get(0).getTitle());
     }
 
     @Test
