@@ -130,6 +130,8 @@ public class BookDao implements DaoInterface<Book, Long>{
             preparedStatement.setDate(2, Date.valueOf(book.getPublicationDate()));
             preparedStatement.setLong(3, book.getAuthor().getId());
             preparedStatement.setLong(4, book.getId());
+            deleteBookGenres(book.getId(), connection);
+            addGenre(book, connection);
 
             preparedStatement.executeUpdate();
 

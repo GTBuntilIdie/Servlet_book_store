@@ -7,6 +7,8 @@ import org.example.dto.BookDto;
 import org.example.dto.GenreDto;
 import org.example.entity.Genre;
 import org.example.mapper.BookMapper;
+import org.example.mapper.GenreMapper;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashSet;

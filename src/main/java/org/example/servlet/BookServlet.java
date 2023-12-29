@@ -3,7 +3,7 @@ package org.example.servlet;
 
 import org.example.dto.AuthorDto;
 import org.example.dto.BookDto;
-import org.example.entity.Author;
+import org.example.dto.GenreDto;
 import org.example.service.BookService;
 
 import javax.servlet.ServletException;
@@ -51,7 +51,7 @@ public class BookServlet extends HttpServlet {
         bookDto.setTitle(title);
         bookDto.setPublicationDate(publicationDate);
         bookDto.setAuthor(authorDto);
-        /*bookDto.setGenreIds(getLongs(genresIds));*/
+        bookDto.setGenres(convertStringToSet(genresIds));
 
         bookService.create(bookDto);
 
@@ -62,13 +62,17 @@ public class BookServlet extends HttpServlet {
         out.println("</body></html>");
     }
 
-    private Set<Long> getLongs(String genresIds) {
-        Set<Long> genreSet = new HashSet<>();
-        String[] genresIdsList = genresIds.split("_");
-        for (String genre_id : genresIdsList) {
-            genreSet.add(Long.parseLong(genre_id));
+    public static Set<GenreDto> convertStringToSet(String genreIds) {
+        Set<GenreDto> genres = new HashSet<>();
+        String[] ids = genreIds.split("_");
+
+        for (String id : ids) {
+            GenreDto genreDto = new GenreDto();
+            genreDto.setId(Long.parseLong(id));
+            genres.add(genreDto);
         }
-        return genreSet;
+
+        return genres;
     }
 
     @Override
@@ -101,8 +105,8 @@ public class BookServlet extends HttpServlet {
         bookDto.setTitle(title);
         bookDto.setPublicationDate(publicationDate);
         bookDto.setAuthor(authorDto);
-        /*bookDto.setGenreIds(getLongs(genresIds));
-*/
+        bookDto.setGenres(convertStringToSet(genresIds));
+
         bookService.update(id, bookDto);
 
         resp.setContentType("text/html");

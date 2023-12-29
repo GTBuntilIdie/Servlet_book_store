@@ -5,8 +5,6 @@ import org.example.entity.Genre;
 
 public class GenreMapper {
 
-
-
     public static GenreDto toDto(Genre genre) {
         GenreDto genreDto = new GenreDto();
         genreDto.setId(genre.getId());
