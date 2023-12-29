@@ -57,19 +57,7 @@ class BookDaoTest {
     }
     @Test
     public void testFindById() {
-        /*Author author = new Author(1L, "name", "surname");
-        createAuthor(1L,"name", "surname");
-        Genre genre = new Genre(1L, "title");
-        createGenre(1L, "title");
-        Set<Genre> genres = new HashSet<>();
-        genres.add(genre);
 
-        Long id = 1L;
-        String title = "title";
-        LocalDate publicationDate = LocalDate.now();
-
-        createBook(id, title, publicationDate, author.getId());
-        createBookGenres(id, genres);*/
         Long id = 1L;
         String title = "title5";
         Long authorId = 5L;
@@ -83,19 +71,7 @@ class BookDaoTest {
 
     @Test
     public void testDeleteById() {
-        /*Author author2 = new Author(2L, "name2", "surname2");
-        createAuthor(2L, "name2", "surname2");
-        Genre genre2 = new Genre(2L, "title2");
-        createGenre(2L, "title2");
-        Set<Genre> genres2 = new HashSet<>();
-        genres2.add(genre2);
 
-        Long id2 = 2L;
-        String title2 = "title2";
-        LocalDate publicationDate2 = LocalDate.now();
-
-        createBook(id2, title2, publicationDate2, author2.getId());
-        createBookGenres(id2, genres2);*/
         Long id = 1L;
 
         bookDao.deleteById(id, connection);
@@ -133,7 +109,7 @@ class BookDaoTest {
         createBookGenres(id4, genres4);
 
         var all = bookDao.findAll(connection);
-        // провекра на три так как остался в базе еще один обьект после предыдущго теста
+
         Assertions.assertEquals(3, all.size());
         Assertions.assertEquals("title3", all.get(1).getTitle());
         Assertions.assertEquals("title4", all.get(2).getTitle());
@@ -166,7 +142,7 @@ class BookDaoTest {
 
     @Test
     public void testUpdate() {
-        // Создаем книгу и добавляем ее в базу данных
+
         Author author6 = new Author(6L, "name6", "surname6");
         createAuthor(6L, "name6", "surname6");
 
@@ -189,6 +165,7 @@ class BookDaoTest {
         book.setTitle("after");
         book.setAuthor(author7);
         book.setPublicationDate(publicationDate6);
+        book.setGenres(genres6);
         bookDao.update(book, connection);
         var getTitle = bookDao.findById(6L, connection).get().getTitle();
 
@@ -196,7 +173,7 @@ class BookDaoTest {
     }
 
     private void createBook(Long id, String title, LocalDate publicationDate, Long authorId) {
-        // Вставка тестовых данных в базу данных
+
         String sql = "INSERT INTO books (id, title, publication_date, author_id) VALUES (?, ?, ?, ?)";
         try (var preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
@@ -221,7 +198,7 @@ class BookDaoTest {
         }
     }
     private void createAuthor(Long id, String name, String surname) {
-        // Вставка тестовых данных в базу данных
+
         String sql = "INSERT INTO authors (id, name, surname) VALUES (?, ?, ?)";
         try (var preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
@@ -233,7 +210,7 @@ class BookDaoTest {
         }
     }
     private void createGenre(Long id, String title) {
-        // Вставка тестовых данных в базу данных
+
         String sql = "INSERT INTO genres (id, title) VALUES (?, ?)";
         try (var preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);

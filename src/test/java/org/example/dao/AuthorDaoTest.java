@@ -51,10 +51,6 @@ class AuthorDaoTest {
     }
     @Test
     public void testFindById() {
-        /*Long id = 1L;
-        String name = "name";
-        String surname = "surname";
-        createAuthor(id, name, surname);*/
 
         Long id = 1L;
         String name = "name5";
@@ -70,10 +66,6 @@ class AuthorDaoTest {
     @Test
     public void testDeleteById() {
         Long id = 1L;
-
-        /*String name2 = "name2";
-        String surname2 = "name2";
-        createAuthor(id, name2, surname2);*/
 
         authorDao.deleteById(id, connection);
         Assertions.assertFalse(authorDao.findById(1L, connection).isPresent());
@@ -107,10 +99,8 @@ class AuthorDaoTest {
         author.setName(name5);
         author.setSurname(surname5);
 
-        // вызовите метод save() для сохранения жанра
         Author savedAuthor = authorDao.save(author, connection);
 
-        // выполните проверки для сохраненного объекта
         Assertions.assertNotNull(savedAuthor);
         Assertions.assertNotNull(savedAuthor.getId());
         Assertions.assertEquals("name5", savedAuthor.getName());
@@ -118,10 +108,9 @@ class AuthorDaoTest {
 
     @Test
     public void testUpdate() {
-        // Создаем жанр и добавляем его в базу данных
+
         createAuthor(6L, "name6", "surname6");
 
-        // Обновляем жанр
         Author newAuthor = new Author();
         newAuthor.setId(6L);
         newAuthor.setName("before");
@@ -129,12 +118,11 @@ class AuthorDaoTest {
         authorDao.update(newAuthor, connection);
         var genreName = authorDao.findById(6L, connection).get().getName();
 
-        // Проверяем, что жанр был обновлен в базе данных
         Assertions.assertEquals("before", genreName);
     }
 
     private void createAuthor(Long id, String name, String surname) {
-        // Вставка тестовых данных в базу данных
+
         String sql = "INSERT INTO authors (id, name, surname) VALUES (?, ?, ?)";
         try (var preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);

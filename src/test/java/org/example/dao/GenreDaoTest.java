@@ -54,13 +54,8 @@ class GenreDaoTest {
         Long id = 1L;
         String title = "Test5";
 
-        /*String title = "Test genre";
-        createGenre(id, title);*/
-
-        // Вызов метода, который тестируем
         Optional<Genre> foundGenre = genreDao.findById(id, connection);
 
-        // Проверка результата
         Assertions.assertTrue(foundGenre.isPresent());
         Assertions.assertEquals(id, foundGenre.get().getId());
         Assertions.assertEquals(title, foundGenre.get().getTitle());
@@ -69,8 +64,7 @@ class GenreDaoTest {
     @Test
     public void testDeleteById() {
         Long id = 1L;
-        /*String title = "Test genre";
-        createGenre(id, title);*/
+
         genreDao.deleteById(id, connection);
         Assertions.assertFalse(genreDao.findById(1L, connection).isPresent());
     }
@@ -99,10 +93,8 @@ class GenreDaoTest {
         Genre genre = new Genre();
         genre.setTitle(title5);
 
-        // вызовите метод save() для сохранения жанра
         Genre savedGenre = genreDao.save(genre, connection);
 
-        // выполните проверки для сохраненного объекта
         Assertions.assertNotNull(savedGenre);
         Assertions.assertNotNull(savedGenre.getId());
         Assertions.assertEquals("Test5", savedGenre.getTitle());
@@ -110,22 +102,20 @@ class GenreDaoTest {
 
     @Test
     public void testUpdate() {
-        // Создаем жанр и добавляем его в базу данных
+
         createGenre(6L, "BeforeUpdate");
 
-        // Обновляем жанр
         Genre newGenre = new Genre();
         newGenre.setId(6L);
         newGenre.setTitle("AfterUpdate");
         genreDao.update(newGenre, connection);
         var genreTitle = genreDao.findById(6L, connection).get().getTitle();
 
-        // Проверяем, что жанр был обновлен в базе данных
         Assertions.assertEquals("AfterUpdate", genreTitle);
     }
 
     private void createGenre(Long id, String title) {
-        // Вставка тестовых данных в базу данных
+
         String sql = "INSERT INTO genres (id, title) VALUES (?, ?)";
         try (var preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
