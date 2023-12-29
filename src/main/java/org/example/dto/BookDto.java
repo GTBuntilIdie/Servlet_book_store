@@ -6,22 +6,11 @@ import java.time.LocalDate;
 import java.util.Set;
 
 public class BookDto {
-
     private Long id;
-    @NotBlank
-    @Size(max = 20)
     private String title;
-
-    @NotNull
-    @Past
     private LocalDate publicationDate;
-
-    @NotBlank
-    @Positive
-    private long authorId;
-
-    @NotEmpty
-    private Set<@Positive Long> genreIds;
+    private AuthorDto author;
+    private Set<GenreDto> genres;
 
     public Long getId() {
         return id;
@@ -47,19 +36,19 @@ public class BookDto {
         this.publicationDate = publicationDate;
     }
 
-    public long getAuthorId() {
-        return authorId;
+    public AuthorDto getAuthor() {
+        return author;
     }
 
-    public void setAuthorId(long authorId) {
-        this.authorId = authorId;
+    public void setAuthor(AuthorDto author) {
+        this.author = author;
     }
 
-    public Set<Long> getGenreIds() {
-        return genreIds;
+    public Set<GenreDto> getGenres() {
+        return genres;
     }
 
-    public void setGenreIds(Set<Long> genreIds) {
-        this.genreIds = genreIds;
+    public void setGenres(Set<GenreDto> genres) {
+        this.genres = genres;
     }
 }

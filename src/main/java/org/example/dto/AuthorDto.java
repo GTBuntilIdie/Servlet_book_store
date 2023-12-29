@@ -4,14 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class AuthorDto {
-
     private Long id;
-    @NotBlank
-    @Size(max = 10)
     private String name;
-
-    @NotBlank
-    @Size(max = 12)
     private String surname;
 
     public Long getId() {

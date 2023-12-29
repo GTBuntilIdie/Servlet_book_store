@@ -5,23 +5,19 @@ import org.example.entity.Genre;
 
 public class GenreMapper {
 
-    private static final GenreMapper INSTANCE = new GenreMapper();
-    public static GenreMapper getInstance() {
-        return INSTANCE;
+
+
+    public static GenreDto toDto(Genre genre) {
+        GenreDto genreDto = new GenreDto();
+        genreDto.setId(genre.getId());
+        genreDto.setTitle(genre.getTitle());
+        return genreDto;
     }
 
-    public GenreDto mapToGenreDto(Genre genre) {
-        GenreDto dto = new GenreDto();
-        dto.setId(genre.getId());
-        dto.setTitle(genre.getTitle());
-        return dto;
-    }
-
-    public Genre mapToGenreEntity(GenreDto dto) {
+    public static Genre toEntity(GenreDto genreDto) {
         Genre genre = new Genre();
-        genre.setId(dto.getId());
-        genre.setTitle(dto.getTitle());
+        genre.setId(genreDto.getId());
+        genre.setTitle(genreDto.getTitle());
         return genre;
     }
-
 }

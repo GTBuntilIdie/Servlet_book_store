@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AuthorMapperTest {
-    private AuthorMapper mapper = AuthorMapper.getInstance();
 
     @Test
     public void testMapToAuthorDto() {
@@ -16,26 +15,26 @@ class AuthorMapperTest {
         author.setName("John");
         author.setSurname("Doe");
 
-        AuthorDto dto = mapper.mapToAuthorDto(author);
+        AuthorDto dto = AuthorMapper.toDto(author);
 
         assertEquals(author.getId(), dto.getId());
         assertEquals(author.getName(), dto.getName());
         assertEquals(author.getSurname(), dto.getSurname());
+
     }
 
     @Test
     public void testMapToAuthorEntity() {
-        // Создаем объект AuthorDto для тестирования
         AuthorDto dto = new AuthorDto();
         dto.setId(1L);
         dto.setName("John");
         dto.setSurname("Doe");
 
-        Author author = mapper.mapToAuthorEntity(dto);
+        Author author = AuthorMapper.toEntity(dto);
 
         assertEquals(dto.getId(), author.getId());
         assertEquals(dto.getName(), author.getName());
         assertEquals(dto.getSurname(), author.getSurname());
-    }
 
+    }
 }

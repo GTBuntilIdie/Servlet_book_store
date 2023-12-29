@@ -1,59 +1,32 @@
 package org.example.mapper;
 
-import org.example.dao.AuthorDao;
-import org.example.dao.GenreDao;
 import org.example.dto.BookDto;
-import org.example.entity.Author;
 import org.example.entity.Book;
-import org.example.entity.Genre;
 
-import java.sql.Connection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BookMapper {
-
-    private static final BookMapper INSTANCE = new BookMapper();
-    public static BookMapper getInstance() {
-        return INSTANCE;
+    public static BookDto toDto(Book book) {
+        BookDto bookDto = new BookDto();
+        bookDto.setId(book.getId());
+        bookDto.setTitle(book.getTitle());
+        bookDto.setPublicationDate(book.getPublicationDate());
+        bookDto.setAuthor(AuthorMapper.toDto(book.getAuthor()));
+        bookDto.setGenres(book.getGenres().stream()
+                .map(GenreMapper::toDto)
+                .collect(Collectors.toSet()));
+        return bookDto;
     }
 
-    private final AuthorDao authorDao = AuthorDao.getInstance();
-    private final GenreDao genreDao = GenreDao.getInstance();
-
-    public BookDto mapToBookDto(Book book) {
-        BookDto dto = new BookDto();
-        dto.setId(book.getId());
-        dto.setTitle(book.getTitle());
-        dto.setPublicationDate(book.getPublicationDate());
-        dto.setAuthorId(book.getAuthor().getId());
-
-        Set<Long> genreIdsSet = new HashSet<>();
-        for (Genre genre : book.getGenres()) {
-            genreIdsSet.add(genre.getId());
-        }
-        dto.setGenreIds(genreIdsSet);
-
-        return dto;
-    }
-
-    public Book mapToBookEntity(BookDto dto, Connection connection) {
+    public static Book toEntity(BookDto bookDto) {
         Book book = new Book();
-        book.setId(dto.getId());
-        book.setTitle(dto.getTitle());
-        book.setPublicationDate(dto.getPublicationDate());
-
-        Author author = authorDao.findById(dto.getAuthorId(), connection).orElse(null);
-        book.setAuthor(author);
-
-        Set<Genre> genreSet = new HashSet<>();
-        for (Long genreId : dto.getGenreIds()) {
-            var genre = genreDao.findById(genreId, connection).orElse(null);
-            genreSet.add(genre);
-        }
-
-        book.setGenres(genreSet);
-
+        book.setId(bookDto.getId());
+        book.setTitle(bookDto.getTitle());
+        book.setPublicationDate(bookDto.getPublicationDate());
+        book.setAuthor(AuthorMapper.toEntity(bookDto.getAuthor()));
+        book.setGenres(bookDto.getGenres().stream()
+                .map(GenreMapper::toEntity)
+                .collect(Collectors.toSet()));
         return book;
     }
 }

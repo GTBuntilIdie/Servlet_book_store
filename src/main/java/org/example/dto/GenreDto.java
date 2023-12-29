@@ -5,8 +5,6 @@ import jakarta.validation.constraints.Size;
 
 public class GenreDto {
     private Long id;
-    @NotBlank
-    @Size(max = 15)
     private String title;
 
     public Long getId() {

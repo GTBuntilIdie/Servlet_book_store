@@ -3,6 +3,7 @@ package org.example.servlet;
 
 import org.example.dto.AuthorDto;
 import org.example.dto.BookDto;
+import org.example.entity.Author;
 import org.example.service.BookService;
 
 import javax.servlet.ServletException;
@@ -39,14 +40,18 @@ public class BookServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String title = req.getParameter("title");
         LocalDate publicationDate = LocalDate.parse(req.getParameter("publicationDate"));
+
         Long authorId = Long.valueOf(req.getParameter("authorId"));
+        AuthorDto authorDto = new AuthorDto();
+        authorDto.setId(authorId);
+
         String genresIds = req.getParameter("genres");
 
         BookDto bookDto = new BookDto();
         bookDto.setTitle(title);
         bookDto.setPublicationDate(publicationDate);
-        bookDto.setAuthorId(authorId);
-        bookDto.setGenreIds(getLongs(genresIds));
+        bookDto.setAuthor(authorDto);
+        /*bookDto.setGenreIds(getLongs(genresIds));*/
 
         bookService.create(bookDto);
 
@@ -56,7 +61,6 @@ public class BookServlet extends HttpServlet {
         out.println("book created");
         out.println("</body></html>");
     }
-
 
     private Set<Long> getLongs(String genresIds) {
         Set<Long> genreSet = new HashSet<>();
@@ -86,15 +90,19 @@ public class BookServlet extends HttpServlet {
         long id = Long.parseLong(req.getParameter("id"));
         String title = req.getParameter("new_title");
         LocalDate publicationDate = LocalDate.parse(req.getParameter("new_publicationDate"));
+
         Long authorId = Long.valueOf(req.getParameter("new_authorId"));
+        AuthorDto authorDto = new AuthorDto();
+        authorDto.setId(authorId);
+
         String genresIds = req.getParameter("new_genres");
 
         BookDto bookDto = new BookDto();
         bookDto.setTitle(title);
         bookDto.setPublicationDate(publicationDate);
-        bookDto.setAuthorId(authorId);
-        bookDto.setGenreIds(getLongs(genresIds));
-
+        bookDto.setAuthor(authorDto);
+        /*bookDto.setGenreIds(getLongs(genresIds));
+*/
         bookService.update(id, bookDto);
 
         resp.setContentType("text/html");

@@ -11,20 +11,21 @@ import java.sql.SQLException;
 public class AuthorService {
 
     private static final AuthorService INSTANCE = new AuthorService();
+
+    public AuthorService() {
+    }
+
     public static AuthorService getInstance() {
         return INSTANCE;
     }
-
-
-    private final AuthorMapper mapper = AuthorMapper.getInstance();
     private final AuthorDao dao = AuthorDao.getInstance();
-
 
     public AuthorDto create(AuthorDto authorDto) {
         try (var connection = ConnectionManager.get()) {
-            Author author = mapper.mapToAuthorEntity(authorDto);
+            Author author = AuthorMapper.toEntity(authorDto);
             Author saved = dao.save(author, connection);
-            return mapper.mapToAuthorDto(saved); }
+            return  AuthorMapper.toDto(saved);
+        }
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -32,7 +33,7 @@ public class AuthorService {
 
     public AuthorDto read(long id) {
         try (var connection = ConnectionManager.get()) {
-            return dao.findById(id, connection).map(mapper::mapToAuthorDto).orElse(null);
+            return dao.findById(id, connection).map(AuthorMapper::toDto).orElse(null);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -47,7 +48,7 @@ public class AuthorService {
                     dao.update(entity, connection);
                     return entity; }
                 )
-                .map(mapper::mapToAuthorDto)
+                .map(AuthorMapper::toDto)
                 .orElse(null);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -60,7 +61,7 @@ public class AuthorService {
                 .map(entity -> {
                     dao.deleteById(id, connection);
                     return entity;
-                }).map(mapper::mapToAuthorDto);
+                }).map(AuthorMapper::toDto);
     } catch (SQLException e) {
             throw new RuntimeException(e);
         }

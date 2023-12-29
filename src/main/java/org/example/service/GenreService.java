@@ -4,25 +4,24 @@ import org.example.connection.ConnectionManager;
 import org.example.dao.GenreDao;
 import org.example.dto.GenreDto;
 import org.example.mapper.GenreMapper;
+import org.example.mapper.GenreMapperImpl;
+
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Optional;
 
 public class GenreService {
-
     private static final GenreService INSTANCE = new GenreService();
     public static GenreService getInstance() {
         return INSTANCE;
     }
-
-    private final GenreMapper mapper = GenreMapper.getInstance();
     private final GenreDao dao = GenreDao.getInstance();
 
     public GenreDto create(GenreDto genreDto) {
         try (Connection connection = ConnectionManager.get()) {
-            return mapper.mapToGenreDto(dao.save(mapper
-                    .mapToGenreEntity(genreDto), connection));}
+            return GenreMapper.toDto(dao.save(GenreMapper
+                    .toEntity(genreDto), connection));}
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -31,7 +30,7 @@ public class GenreService {
     public GenreDto read(long id) {
         try (Connection connection = ConnectionManager.get()) {
             return dao.findById(id, connection)
-                    .map(mapper::mapToGenreDto).orElse(null); }
+                    .map(GenreMapper::toDto).orElse(null); }
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -45,7 +44,7 @@ public class GenreService {
                     dao.update(entity, connection);
                     return entity;
                 })
-                .map(mapper::mapToGenreDto)
+                .map(GenreMapper::toDto)
                 .orElse(null); }
         catch (SQLException e) {
             throw new RuntimeException(e);

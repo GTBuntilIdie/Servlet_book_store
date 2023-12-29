@@ -4,9 +4,9 @@ import org.example.connection.ConnectionManager;
 import org.example.dao.BookDao;
 import org.example.dao.GenreDao;
 import org.example.dto.BookDto;
+import org.example.dto.GenreDto;
 import org.example.entity.Genre;
 import org.example.mapper.BookMapper;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -18,17 +18,14 @@ public class BookService {
     public static BookService getInstance() {
         return INSTANCE;
     }
-
-
-    private final BookMapper mapper = BookMapper.getInstance();
     private final BookDao dao = BookDao.getInstance();
     private final GenreDao genreDao = GenreDao.getInstance();
 
 
     public BookDto create(BookDto bookDto) {
         try (Connection connection = ConnectionManager.get()) {
-            return mapper.mapToBookDto(dao
-                    .save(mapper.mapToBookEntity(bookDto, connection), connection));
+            return BookMapper.toDto(dao
+                    .save(BookMapper.toEntity(bookDto), connection));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -38,7 +35,7 @@ public class BookService {
     public BookDto read(long id) {
         try (Connection connection = ConnectionManager.get()) {
             return dao.findById(id, connection)
-                    .map(mapper::mapToBookDto)
+                    .map(BookMapper::toDto)
                     .orElse(null);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -51,12 +48,12 @@ public class BookService {
                     .map(entity -> {
                         entity.setTitle(newDto.getTitle());
                         entity.setPublicationDate(newDto.getPublicationDate());
-                        entity.setAuthor(mapper.mapToBookEntity(newDto, connection).getAuthor());
-                        entity.setGenres(getBookGenres(newDto.getGenreIds(), connection));
+                        entity.setAuthor(BookMapper.toEntity(newDto).getAuthor());
+                        entity.setGenres(getBookGenres(newDto.getGenres(), connection));
                         dao.update(entity, connection);
                         return entity;
                     })
-                    .map(mapper::mapToBookDto)
+                    .map(BookMapper::toDto)
                     .orElse(null);
 
         } catch (SQLException e) {
@@ -70,16 +67,16 @@ public class BookService {
                     .map(entity -> {
                         dao.deleteById(id, connection);
                         return entity;
-                    }).map(mapper::mapToBookDto);
+                    }).map(BookMapper::toDto);
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-    private Set<Genre> getBookGenres(Set<Long> genresIds, Connection connection) {
+    private Set<Genre> getBookGenres(Set<GenreDto> genresIds, Connection connection) {
         Set<Genre> set = new HashSet<>();
-        for (Long id : genresIds) {
-            set.add(genreDao.findById(id, connection).get());
+        for (GenreDto genreDto : genresIds) {
+            set.add(genreDao.findById(genreDto.getId(), connection).get());
         }
         return set;
     }
