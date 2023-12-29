@@ -4,8 +4,6 @@ import org.example.connection.ConnectionManager;
 import org.example.dao.GenreDao;
 import org.example.dto.GenreDto;
 import org.example.mapper.GenreMapper;
-import org.example.mapper.GenreMapperImpl;
-
 
 import java.sql.Connection;
 import java.sql.SQLException;

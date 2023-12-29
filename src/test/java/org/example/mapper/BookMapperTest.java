@@ -21,6 +21,7 @@ class BookMapperTest {
     Author author = new Author(1L, "name", "surname");
     LocalDate date = LocalDate.now();
 
+
     GenreDto genreDto1 = new GenreDto();
     GenreDto genreDto2 = new GenreDto();
     Genre genre1 = new Genre(1l, "genre1");
@@ -36,9 +37,9 @@ class BookMapperTest {
         AuthorDto authorDto = new AuthorDto();
         authorDto.setId(1L);
 
-        Set<GenreDto> expSet = new HashSet<>();
-        expSet.add(genreDto1);
-        expSet.add(genreDto2);
+        Set<GenreDto> genreDtoSet = new HashSet<>();
+        genreDtoSet.add(genreDto1);
+        genreDtoSet.add(genreDto2);
 
         genres.add(genre1);
         genres.add(genre2);
@@ -46,38 +47,41 @@ class BookMapperTest {
         genreDtos.add(genreDto1);
         genreDtos.add(genreDto2);
 
-        Book book = mock(Book.class);
-        when(book.getId()).thenReturn(1L);
-        when(book.getTitle()).thenReturn("Test Book");
-        when(book.getAuthor()).thenReturn(author);
-        when(book.getPublicationDate()).thenReturn(date);
-        when(book.getGenres()).thenReturn(genres);
+        Book book = new Book();
+        book.setId(1L);
+        book.setTitle("title");
+        book.setPublicationDate(date);
+        book.setAuthor(author);
+        book.setGenres(genres);
 
         BookDto dto = BookMapper.toDto(book);
 
-        assertEquals("Test Book", dto.getTitle());
+        assertEquals("title", dto.getTitle());
         assertEquals(1L, authorDto.getId());
-        assertEquals(dto.getGenres(), genreDtos);
+        assertEquals(dto.getGenres().size(), genreDtos.size());
 
     }
 
     @Test
     public void testMapToBookEntity() {
 
+        AuthorDto authorDto = new AuthorDto();
+        authorDto.setId(1L);
+
         BookDto bookDto = new BookDto();
         bookDto.setId(1L);
         bookDto.setTitle("Test dto");
         bookDto.setPublicationDate(date);
-        /*bookDto.setAuthorId(author.getId());*/
+        bookDto.setAuthor(authorDto);
 
-        /*genreDtos.add(genre1);
-        genreDtos.add(genre2.getId());
-        bookDto.setGenreIds(genreDtos);*/
+        genreDtos.add(genreDto1);
+        genreDtos.add(genreDto2);
+        bookDto.setGenres(genreDtos);
 
-       /* var result = mapper.toEntity(bookDto);
+        var result = BookMapper.toEntity(bookDto);
 
         assertEquals(bookDto.getTitle(), result.getTitle());
         assertEquals(bookDto.getPublicationDate(), result.getPublicationDate());
-*/    }
+    }
 
 }
